@@ -163,8 +163,14 @@ const App = {
         // Initialize ads
         Ads.init();
         
-        // Listen for notifications
+      if (typeof Notifications !== 'undefined') {
         Notifications.listen();
+    }
+    
+    if (typeof Friends !== 'undefined') {
+        Friends.listenToRequests();
+    }
+},
     },
     
     /* ==================
