@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#f8b4d9">
+    <meta name="description" content="Vidr - Share, Create, Earn. The next-gen social platform.">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <title>Vidr - Share, Create, Earn</title>
+    
+    <!-- Preload Critical Resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/logo/favicon.png">
+    <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png">
+    
+    <!-- Manifest for PWA -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js"></script>
+    
+    <!-- Adsterra -->
+    <script async src="//pl*.youradsterralink.com/placeholder.js"></script>
+    
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-YOURPUBID" crossorigin="anonymous"></script>
+</head>
+<body>
+    <!-- Splash Screen -->
+    <div id="splash-screen" class="splash-screen">
+        <div class="splash-content">
+            <div class="splash-logo">
+                <svg width="80" height="80" viewBox="0 0 80 80" class="vidr-logo-svg">
+                    <defs>
+                        <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#f8b4d9;stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:#c084fc;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#818cf8;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <rect rx="20" width="80" height="80" fill="url(#logoGrad)"/>
+                    <text x="50%" y="55%" text-anchor="middle" fill="white" font-size="32" font-weight="800" font-family="Poppins">V</text>
+                </svg>
+            </div>
+            <h1 class="splash-title">vidr</h1>
+            <div class="splash-loader">
+                <div class="loader-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Screen -->
+    <div id="login-screen" class="screen" style="display:none;">
+        <div class="login-container">
+            <div class="login-header">
+                <div class="login-logo">
+                    <svg width="60" height="60" viewBox="0 0 80 80" class="vidr-logo-svg">
+                        <defs>
+                            <linearGradient id="logoGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#f8b4d9" />
+                                <stop offset="50%" style="stop-color:#c084fc" />
+                                <stop offset="100%" style="stop-color:#818cf8" />
+                            </linearGradient>
+                        </defs>
+                        <rect rx="20" width="80" height="80" fill="url(#logoGrad2)"/>
+                        <text x="50%" y="55%" text-anchor="middle" fill="white" font-size="32" font-weight="800" font-family="Poppins">V</text>
+                    </svg>
+                </div>
+                <h1>Welcome to <span class="gradient-text">Vidr</span></h1>
+                <p>Share, Create, Earn</p>
+            </div>
+            
+            <div class="login-form">
+                <!-- Email Login -->
+                <div class="form-group">
+                    <input type="email" id="login-email" placeholder="Email address" class="form-input">
+                </div>
+                <div class="form-group">
+                    <input type="password" id="login-password" placeholder="Password" class="form-input">
+                </div>
+                <button id="login-btn" class="btn btn-primary btn-full" onclick="Auth.loginEmail()">
+                    <span>Sign In</span>
+                </button>
+                
+                <div class="divider">
+                    <span>or continue with</span>
+                </div>
+                
+                <!-- Google Login -->
+                <button id="google-login-btn" class="btn btn-google btn-full" onclick="Auth.loginGoogle()">
+                    <i class="fab fa-google"></i>
+                    <span>Sign in with Google</span>
+                </button>
+                
+                <p class="login-switch">
+                    Don't have an account? 
+                    <a href="#" onclick="Auth.showRegister()">Sign Up</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Screen -->
+    <div id="register-screen" class="screen" style="display:none;">
+        <div class="login-container">
+            <div class="login-header">
+                <h1>Create Account</h1>
+                <p>Join <span class="gradient-text">Vidr</span> today</p>
+            </div>
+            
+            <div class="login-form">
+                <div class="form-group">
+                    <input type="text" id="reg-username" placeholder="Username" class="form-input" maxlength="20">
+                </div>
+                <div class="form-group">
+                    <input type="text" id="reg-displayname" placeholder="Display Name" class="form-input" maxlength="30">
+                </div>
+                <div class="form-group">
+                    <input type="email" id="reg-email" placeholder="Email address" class="form-input">
+                </div>
+                <div class="form-group">
+                    <input type="password" id="reg-password" placeholder="Password (min 8 chars)" class="form-input" minlength="8">
+                </div>
+                <div class="form-group">
+                    <input type="password" id="reg-confirm-password" placeholder="Confirm Password" class="form-input">
+                </div>
+                <button class="btn btn-primary btn-full" onclick="Auth.register()">
+                    <span>Create Account</span>
+                </button>
+                
+                <div class="divider">
+                    <span>or</span>
+                </div>
+                
+                <button class="btn btn-google btn-full" onclick="Auth.loginGoogle()">
+                    <i class="fab fa-google"></i>
+                    <span>Sign up with Google</span>
+                </button>
+                
+                <p class="login-switch">
+                    Already have an account? 
+                    <a href="#" onclick="Auth.showLogin()">Sign In</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="main-app" class="screen" style="display:none;">
+        
+        <!-- Top Header -->
+        <header id="top-header" class="top-header">
+            <div class="header-left">
+                <svg width="28" height="28" viewBox="0 0 80 80" class="header-logo">
+                    <defs>
+                        <linearGradient id="logoGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#f8b4d9" />
+                            <stop offset="50%" style="stop-color:#c084fc" />
+                            <stop offset="100%" style="stop-color:#818cf8" />
+                        </linearGradient>
+                    </defs>
+                    <rect rx="20" width="80" height="80" fill="url(#logoGrad3)"/>
+                    <text x="50%" y="55%" text-anchor="middle" fill="white" font-size="32" font-weight="800" font-family="Poppins">V</text>
+                </svg>
+            </div>
+            <div class="header-center">
+                <div class="feed-tabs">
+                    <button class="feed-tab active" data-tab="foryou" onclick="Feed.switchTab('foryou')">For You</button>
+                    <button class="feed-tab" data-tab="following" onclick="Feed.switchTab('following')">Following</button>
+                </div>
+            </div>
+            <div class="header-right">
+                <button class="header-icon-btn" onclick="App.openSearch()">
+                    <i class="fas fa-search"></i>
+                </button>
+                <button class="header-icon-btn notification-btn" onclick="App.openNotifications()">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge" id="notif-badge" style="display:none;">0</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Feed Container -->
+        <main id="feed-container" class="feed-container">
+            <!-- For You Feed -->
+            <div id="foryou-feed" class="feed-scroll active">
+                <!-- Feed items loaded dynamically -->
+                <div class="feed-loading">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+            
+            <!-- Following Feed -->
+            <div id="following-feed" class="feed-scroll" style="display:none;">
+                <div class="feed-loading">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav id="bottom-nav" class="bottom-nav">
+            <button class="nav-item active" data-page="home" onclick="App.navigate('home')">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </button>
+            <button class="nav-item" data-page="discover" onclick="App.navigate('discover')">
+                <i class="fas fa-compass"></i>
+                <span>Discover</span>
+            </button>
+            <button class="nav-item create-btn" onclick="App.openCreateModal()">
+                <div class="create-icon">
+                    <i class="fas fa-plus"></i>
+                </div>
+            </button>
+            <button class="nav-item" data-page="chat" onclick="App.navigate('chat')">
+                <i class="fas fa-comment-dots"></i>
+                <span>Chat</span>
+                <span class="chat-badge" id="chat-badge" style="display:none;">0</span>
+            </button>
+            <button class="nav-item" data-page="profile" onclick="App.navigate('profile')">
+                <div class="nav-avatar">
+                    <img id="nav-avatar-img" src="assets/icons/default-avatar.png" alt="">
+                </div>
+                <span>Me</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- ==================== OVERLAY PAGES ==================== -->
+    
+    <!-- Search Overlay -->
+    <div id="search-overlay" class="overlay-page" style="display:none;">
+        <div class="overlay-header">
+            <button class="back-btn" onclick="App.closeOverlay('search-overlay')">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-input" placeholder="Search users..." oninput="App.searchUsers(this.value)">
+            </div>
+        </div>
+        <div id="search-results" class="search-results">
+            <div class="search-placeholder">
+                <i class="fas fa-search"></i>
+                <p>Search for users</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications Overlay -->
+    <div id="notifications-overlay" class="overlay-page" style="display:none;">
+        <div class="overlay-header">
+            <button class="back-btn" onclick="App.closeOverlay('notifications-overlay')">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h2>Notifications</h2>
+        </div>
+        <div id="notifications-list" class="notifications-list">
+            <!-- Loaded dynamically -->
+        </div>
+    </div>
+
+    <!-- Discover Page -->
+    <div id="discover-page" class="page-container" style="display:none;">
+        <div class="page-header">
+            <h2>Discover</h2>
+            <div class="search-bar" onclick="App.openSearch()">
+                <i class="fas fa-search"></i>
+                <span>Search users...</span>
+            </div>
+        </div>
+        <div id="discover-content" class="discover-grid">
+            <!-- User cards loaded dynamically -->
+        </div>
+    </div>
+
+    <!-- Chat Page -->
+    <div id="chat-page" class="page-container" style="display:none;">
+        <div class="page-header">
+            <h2>Messages</h2>
+            <button class="header-icon-btn" onclick="Chat.newChat()">
+                <i class="fas fa-edit"></i>
+            </button>
+        </div>
+        <div id="chat-list" class="chat-list">
+            <!-- Chat items loaded dynamically -->
+        </div>
+    </div>
+
+    <!-- Chat Room -->
+    <div id="chat-room" class="overlay-page" style="display:none;">
+        <div class="chat-room-header">
+            <button class="back-btn" onclick="Chat.closeRoom()">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <div class="chat-room-user" id="chat-room-user-info">
+                <img src="" alt="" class="chat-avatar">
+                <div>
+                    <h3 class="chat-username"></h3>
+                    <span class="chat-status">Online</span>
+                </div>
+            </div>
+            <button class="header-icon-btn" onclick="Chat.roomOptions()">
+                <i class="fas fa-ellipsis-v"></i>
+            </button>
+        </div>
+        <div id="chat-messages" class="chat-messages">
+            <!-- Messages loaded dynamically -->
+        </div>
+        <div class="chat-input-area">
+            <button class="chat-action-btn" onclick="Chat.openStickers()">
+                <i class="fas fa-smile"></i>
+            </button>
+            <button class="chat-action-btn" onclick="Chat.attachMedia()">
+                <i class="fas fa-image"></i>
+            </button>
+            <input type="text" id="chat-input" placeholder="Message..." class="chat-text-input">
+            <button class="chat-send-btn" onclick="Chat.sendMessage()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Profile Page -->
+    <div id="profile-page" class="page-container" style="display:none;">
+        <!-- Loaded dynamically by Profile.js -->
+    </div>
+
+    <!-- Create Modal -->
+    <div id="create-modal" class="modal-overlay" style="display:none;">
+        <div class="create-modal-content">
+            <div class="modal-header">
+                <h2>Create</h2>
+                <button class="close-btn" onclick="App.closeCreateModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="create-options">
+                <button class="create-option" onclick="Create.goLive()">
+                    <div class="option-icon live-icon">
+                        <i class="fas fa-broadcast-tower"></i>
+                    </div>
+                    <span>Go LIVE</span>
+                </button>
+                <button class="create-option" onclick="Create.postVideo()">
+                    <div class="option-icon video-icon">
+                        <i class="fas fa-video"></i>
+                    </div>
+                    <span>Video</span>
+                </button>
+                <button class="create-option" onclick="Create.postImages()">
+                    <div class="option-icon photo-icon">
+                        <i class="fas fa-images"></i>
+                    </div>
+                    <span>Photos</span>
+                </button>
+                <button class="create-option" onclick="Create.postText()">
+                    <div class="option-icon text-icon">
+                        <i class="fas fa-font"></i>
+                    </div>
+                    <span>Text</span>
+                </button>
+                <button class="create-option" onclick="Create.postStory()">
+                    <div class="option-icon story-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <span>Story</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wallet Overlay -->
+    <div id="wallet-overlay" class="overlay-page" style="display:none;">
+        <div class="overlay-header">
+            <button class="back-btn" onclick="App.closeOverlay('wallet-overlay')">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h2>Wallet</h2>
+        </div>
+        <div class="wallet-content">
+            <div class="wallet-balance-card">
+                <div class="balance-item">
+                    <span class="balance-icon">⚡</span>
+                    <div>
+                        <p class="balance-label">Free Coins</p>
+                        <h2 class="balance-amount" id="free-coins-balance">0</h2>
+                    </div>
+                </div>
+                <div class="balance-divider"></div>
+                <div class="balance-item">
+                    <span class="balance-icon gold">🪙</span>
+                    <div>
+                        <p class="balance-label">Gold Coins</p>
+                        <h2 class="balance-amount gold" id="gold-coins-balance">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="wallet-actions">
+                <button class="wallet-action-btn" onclick="Wallet.buyCoins()">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Buy Coins</span>
+                </button>
+                <button class="wallet-action-btn" onclick="Wallet.withdraw()">
+                    <i class="fas fa-arrow-circle-down"></i>
+                    <span>Withdraw</span>
+                </button>
+                <button class="wallet-action-btn" onclick="Wallet.history()">
+                    <i class="fas fa-history"></i>
+                    <span>History</span>
+                </button>
+            </div>
+            <div class="coin-packages" id="coin-packages">
+                <!-- Loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Daily Reward Modal -->
+    <div id="daily-reward-modal" class="modal-overlay" style="display:none;">
+        <div class="reward-modal-content">
+            <h2>🎁 Daily Reward</h2>
+            <div class="reward-box" id="reward-box">
+                <div class="reward-animation">
+                    <span class="gift-emoji">🎁</span>
+                </div>
+                <button class="btn btn-primary" onclick="Rewards.claimDaily()">Open Reward</button>
+            </div>
+            <div class="reward-result" id="reward-result" style="display:none;">
+                <h3 id="reward-text"></h3>
+                <button class="btn btn-secondary" onclick="App.closeModal('daily-reward-modal')">Collect</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Spin Wheel Modal -->
+    <div id="spin-wheel-modal" class="modal-overlay" style="display:none;">
+        <div class="spin-modal-content">
+            <h2>🎰 Spin & Win</h2>
+            <div class="wheel-container">
+                <canvas id="spin-wheel-canvas" width="300" height="300"></canvas>
+                <div class="wheel-pointer">▼</div>
+            </div>
+            <p class="spin-info">Watch <span id="ads-remaining">3</span> ads to earn a spin</p>
+            <button class="btn btn-primary" id="spin-btn" onclick="Rewards.watchAdForSpin()">
+                <i class="fas fa-ad"></i> Watch Ad
+            </button>
+        </div>
+    </div>
+
+    <!-- Shop Overlay -->
+    <div id="shop-overlay" class="overlay-page" style="display:none;">
+        <div class="overlay-header">
+            <button class="back-btn" onclick="App.closeOverlay('shop-overlay')">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h2>🛒 Shop</h2>
+            <button class="header-icon-btn" onclick="Shop.openCart()">
+                <i class="fas fa-shopping-bag"></i>
+                <span class="cart-badge" id="cart-badge" style="display:none;">0</span>
+            </button>
+        </div>
+        <div id="shop-content" class="shop-grid">
+            <!-- Products loaded dynamically -->
+        </div>
+    </div>
+
+    <!-- Product Listing Modal (Yellow Bag TikTok style) -->
+    <div id="product-listing-modal" class="modal-bottom" style="display:none;">
+        <div class="modal-bottom-content">
+            <div class="modal-drag-handle"></div>
+            <div class="product-listing-header">
+                <span class="shop-bag-icon">🛍️</span>
+                <h3>Products</h3>
+                <button class="close-btn" onclick="Shop.closeProductListing()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="product-listing-items" class="product-listing-items">
+                <!-- Products in post -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Stream Page -->
+    <div id="live-page" class="overlay-page" style="display:none;">
+        <div class="live-container">
+            <video id="live-video" autoplay playsinline></video>
+            <div class="live-overlay">
+                <div class="live-header">
+                    <div class="live-user-info">
+                        <img src="" class="live-avatar" id="live-host-avatar">
+                        <div>
+                            <span class="live-username" id="live-host-name"></span>
+                            <span class="live-badge">LIVE</span>
+                        </div>
+                        <span class="live-viewers"><i class="fas fa-eye"></i> <span id="live-viewer-count">0</span></span>
+                    </div>
+                    <button class="close-btn live-close" onclick="Live.leave()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <!-- Live Battle -->
+                <div class="live-battle-container" id="live-battle" style="display:none;">
+                    <div class="battle-progress">
+                        <div class="battle-bar-left" id="battle-bar-left"></div>
+                        <div class="battle-bar-right" id="battle-bar-right"></div>
+                    </div>
+                </div>
+                
+                <!-- Gift Overlay -->
+                <div class="gift-overlay" id="gift-overlay"></div>
+                
+                <!-- Live Comments -->
+                <div class="live-comments" id="live-comments">
+                    <!-- Live chat messages -->
+                </div>
+                
+                <!-- Live Bottom Actions -->
+                <div class="live-bottom">
+                    <input type="text" id="live-comment-input" placeholder="Say something..." class="live-input">
+                    <button class="live-action-btn" onclick="Live.openGifts()">
+                        <i class="fas fa-gift"></i>
+                    </button>
+                    <button class="live-action-btn" onclick="Live.share()">
+                        <i class="fas fa-share"></i>
+                    </button>
+                    <button class="live-action-btn" id="live-shop-btn" style="display:none;" onclick="Shop.openFromLive()">
+                        <span class="shop-bag-icon">🛍️</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Live Filters -->
+            <div class="live-filters" id="live-filters" style="display:none;">
+                <div class="filter-options">
+                    <button class="filter-btn" data-filter="none">None</button>
+                    <button class="filter-btn" data-filter="beauty">Beauty</button>
+                    <button class="filter-btn" data-filter="warm">Warm</button>
+                    <button class="filter-btn" data-filter="cool">Cool</button>
+                    <button class="filter-btn" data-filter="vintage">Vintage</button>
+                    <button class="filter-btn" data-filter="bw">B&W</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gift Panel -->
+    <div id="gift-panel" class="modal-bottom" style="display:none;">
+        <div class="modal-bottom-content">
+            <div class="modal-drag-handle"></div>
+            <h3>Send Gift</h3>
+            <div class="gift-tabs">
+                <button class="gift-tab active" onclick="Live.switchGiftTab('free')">⚡ Free</button>
+                <button class="gift-tab" onclick="Live.switchGiftTab('paid')">🪙 Paid</button>
+            </div>
+            <div class="gift-grid" id="gift-grid">
+                <!-- Gifts loaded dynamically -->
+            </div>
+            <div class="gift-send-bar">
+                <span class="gift-balance">⚡ <span id="gift-free-balance">0</span></span>
+                <span class="gift-balance gold">🪙 <span id="gift-gold-balance">0</span></span>
+                <button class="btn btn-primary btn-sm" id="send-gift-btn" onclick="Live.sendGift()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mini Games Page -->
+    <div id="games-page" class="overlay-page" style="display:none;">
+        <div class="overlay-header">
+            <button class="back-btn" onclick="App.closeOverlay('games-page')">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h2>🎮 Mini Games</h2>
+        </div>
+        <div class="games-grid">
+            <div class="game-card" onclick="Games.play('coinflip')">
+                <div class="game-icon">🪙</div>
+                <h3>Coin Flip</h3>
+                <p>Double or nothing!</p>
+                <span class="game-cost">⚡ 10</span>
+            </div>
+            <div class="game-card" onclick="Games.play('dice')">
+                <div class="game-icon">🎲</div>
+                <h3>Lucky Dice</h3>
+                <p>Roll for rewards</p>
+                <span class="game-cost">⚡ 15</span>
+            </div>
+            <div class="game-card" onclick="Games.play('scratch')">
+                <div class="game-icon">🎫</div>
+                <h3>Scratch Card</h3>
+                <p>Scratch to win!</p>
+                <span class="game-cost">⚡ 20</span>
+            </div>
+            <div class="game-card" onclick="Games.play('slots')">
+                <div class="game-icon">🎰</div>
+                <h3>Lucky Slots</h3>
+                <p>777 Jackpot!</p>
+                <span class="game-cost">⚡ 25</span>
+            </div>
+            <div class="game-card" onclick="Games.play('rps')">
+                <div class="game-icon">✊</div>
+                <h3>Rock Paper Scissors</h3>
+                <p>Beat the bot!</p>
+                <span class="game-cost">⚡ 5</span>
+            </div>
+            <div class="game-card" onclick="Games.play('guess')">
+                <div class="game-icon">🔢</div>
+                <h3>Number Guess</h3>
+                <p>Guess 1-10</p>
+                <span class="game-cost">⚡ 10</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaderboard Page -->
+    <div id="leaderboard-page" class="overlay-page" style="display:none;">
+        <div class="overlay-header">
+            <button class="back-btn" onclick="App.closeOverlay('leaderboard-page')">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h2>🏆 Leaderboard</h2>
+        </div>
+        <div class="leaderboard-tabs">
+            <button class="lb-tab active" onclick="Leaderboard.switchTab('level')">Level</button>
+            <button class="lb-tab" onclick="Leaderboard.switchTab('followers')">Followers</button>
+            <button class="lb-tab" onclick="Leaderboard.switchTab('likes')">Likes</button>
+            <button class="lb-tab" onclick="Leaderboard.switchTab('gifters')">Top Gifters</button>
+        </div>
+        <div id="leaderboard-list" class="leaderboard-list">
+            <!-- Loaded dynamically -->
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="admin-panel" class="overlay-page" style="display:none;">
+        <div class="overlay-header">
+            <button class="back-btn" onclick="App.closeOverlay('admin-panel')">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h2>⚙️ Admin Panel</h2>
+        </div>
+        <div class="admin-content">
+            <div class="admin-stats">
+                <div class="admin-stat-card">
+                    <h3 id="admin-total-users">0</h3>
+                    <p>Total Users</p>
+                </div>
+                <div class="admin-stat-card">
+                    <h3 id="admin-active-users">0</h3>
+                    <p>Active</p>
+                </div>
+                <div class="admin-stat-card">
+                    <h3 id="admin-total-posts">0</h3>
+                    <p>Posts</p>
+                </div>
+                <div class="admin-stat-card">
+                    <h3 id="admin-revenue">$0</h3>
+                    <p>Revenue</p>
+                </div>
+            </div>
+            
+            <div class="admin-section">
+                <h3>User Management</h3>
+                <div class="admin-search">
+                    <input type="text" id="admin-user-search" placeholder="Search user..." class="form-input">
+                    <button class="btn btn-sm btn-primary" onclick="Admin.searchUser()">Search</button>
+                </div>
+                <div id="admin-user-results"></div>
+            </div>
+            
+            <div class="admin-section">
+                <h3>Bot Management</h3>
+                <div class="admin-form-group">
+                    <input type="number" id="bot-count" placeholder="Number of bots" class="form-input">
+                    <button class="btn btn-sm btn-primary" onclick="Admin.addBots()">Add Bots</button>
+                </div>
+                <div class="admin-form-group">
+                    <input type="text" id="bot-video-url" placeholder="Video URL for bot" class="form-input">
+                    <button class="btn btn-sm btn-primary" onclick="Admin.addBotVideo()">Add Bot Video</button>
+                </div>
+            </div>
+            
+            <div class="admin-section">
+                <h3>System</h3>
+                <button class="btn btn-full btn-secondary" onclick="Admin.manageAds()">Manage Ads</button>
+                <button class="btn btn-full btn-secondary" onclick="Admin.manageShop()">Manage Shop</button>
+                <button class="btn btn-full btn-secondary" onclick="Admin.viewReports()">View Reports</button>
+                <button class="btn btn-full btn-danger" onclick="Admin.clearCache()">Clear Cache</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Action Modal (Admin) -->
+    <div id="admin-user-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>User Actions</h2>
+                <button class="close-btn" onclick="App.closeModal('admin-user-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="admin-user-info" class="admin-user-detail"></div>
+            <div class="admin-actions-grid">
+                <button class="admin-action-btn" onclick="Admin.toggleBan()">
+                    <i class="fas fa-ban"></i> Ban/Unban
+                </button>
+                <button class="admin-action-btn" onclick="Admin.toggleSuspend()">
+                    <i class="fas fa-pause"></i> Suspend/Unsuspend
+                </button>
+                <button class="admin-action-btn" onclick="Admin.toggleVerified()">
+                    <i class="fas fa-check-circle"></i> Verify/Unverify
+                </button>
+                <button class="admin-action-btn" onclick="Admin.addCoins()">
+                    <i class="fas fa-coins"></i> Add Coins
+                </button>
+                <button class="admin-action-btn" onclick="Admin.manageTitles()">
+                    <i class="fas fa-tag"></i> Titles
+                </button>
+                <button class="admin-action-btn" onclick="Admin.manageAchievements()">
+                    <i class="fas fa-trophy"></i> Achievements
+                </button>
+                <button class="admin-action-btn" onclick="Admin.setLevel()">
+                    <i class="fas fa-level-up-alt"></i> Set Level
+                </button>
+                <button class="admin-action-btn" onclick="Admin.setRole()">
+                    <i class="fas fa-user-shield"></i> Set Role
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sticker Panel -->
+    <div id="sticker-panel" class="modal-bottom" style="display:none;">
+        <div class="modal-bottom-content">
+            <div class="modal-drag-handle"></div>
+            <h3>Stickers</h3>
+            <div class="sticker-tabs">
+                <button class="sticker-tab active" data-pack="default">😀</button>
+                <button class="sticker-tab" data-pack="love">❤️</button>
+                <button class="sticker-tab" data-pack="fun">🎉</button>
+                <button class="sticker-tab" data-pack="animated">✨</button>
+            </div>
+            <div class="sticker-grid" id="sticker-grid">
+                <!-- Loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- View Profile Overlay -->
+    <div id="view-profile-overlay" class="overlay-page" style="display:none;">
+        <!-- Loaded dynamically -->
+    </div>
+
+    <!-- Post Detail Overlay -->
+    <div id="post-detail-overlay" class="overlay-page" style="display:none;">
+        <!-- Loaded dynamically -->
+    </div>
+
+    <!-- Comment Section -->
+    <div id="comment-modal" class="modal-bottom" style="display:none;">
+        <div class="modal-bottom-content modal-full">
+            <div class="modal-drag-handle"></div>
+            <div class="comment-header">
+                <h3><span id="comment-count">0</span> Comments</h3>
+                <button class="close-btn" onclick="App.closeModal('comment-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="comment-list" id="comment-list">
+                <!-- Comments loaded dynamically -->
+            </div>
+            <div class="comment-input-area">
+                <img src="" class="comment-avatar" id="comment-my-avatar">
+                <input type="text" id="comment-input" placeholder="Add a comment..." class="comment-text-input">
+                <button class="comment-send-btn" onclick="Feed.sendComment()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share Modal -->
+    <div id="share-modal" class="modal-bottom" style="display:none;">
+        <div class="modal-bottom-content">
+            <div class="modal-drag-handle"></div>
+            <h3>Share to</h3>
+            <div class="share-friends-list" id="share-friends-list">
+                <!-- Friends list for sharing -->
+            </div>
+            <div class="share-external">
+                <button class="share-ext-btn" onclick="Feed.copyLink()">
+                    <i class="fas fa-link"></i>
+                    <span>Copy Link</span>
+                </button>
+                <button class="share-ext-btn" onclick="Feed.repost()">
+                    <i class="fas fa-retweet"></i>
+                    <span>Repost</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- XP Boost Modal -->
+    <div id="xp-boost-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>⚡ XP Boost</h2>
+                <button class="close-btn" onclick="App.closeModal('xp-boost-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="xp-boost-options">
+                <div class="boost-card" onclick="XP.buyBoost(15)">
+                    <h3>15 min</h3>
+                    <p>2x XP</p>
+                    <span class="boost-price">⚡ 100</span>
+                </div>
+                <div class="boost-card" onclick="XP.buyBoost(30)">
+                    <h3>30 min</h3>
+                    <p>2x XP</p>
+                    <span class="boost-price">⚡ 180</span>
+                </div>
+                <div class="boost-card" onclick="XP.buyBoost(60)">
+                    <h3>1 hour</h3>
+                    <p>2x XP</p>
+                    <span class="boost-price">⚡ 300</span>
+                </div>
+                <div class="boost-card" onclick="XP.buyBoost(1440)">
+                    <h3>1 day</h3>
+                    <p>2x XP</p>
+                    <span class="boost-price">⚡ 1000</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Verified Purchase Modal -->
+    <div id="verified-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>✨ Get Verified</h2>
+                <button class="close-btn" onclick="App.closeModal('verified-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="verified-benefits">
+                <div class="verified-preview">
+                    <div class="verified-name-preview">
+                        <span class="glow-name">YourName</span>
+                        <i class="fas fa-check-circle verified-icon"></i>
+                    </div>
+                </div>
+                <ul class="benefit-list">
+                    <li><i class="fas fa-check"></i> Verified Badge</li>
+                    <li><i class="fas fa-check"></i> Glowing Username</li>
+                    <li><i class="fas fa-check"></i> Animated Profile Photo Border</li>
+                    <li><i class="fas fa-check"></i> Animated Cover Banner</li>
+                    <li><i class="fas fa-check"></i> Sell Products in Shop</li>
+                    <li><i class="fas fa-check"></i> 5 Free Boosts/month</li>
+                    <li><i class="fas fa-check"></i> Priority Support</li>
+                </ul>
+                <div class="verified-price">
+                    <h2>$18<span>/month</span></h2>
+                </div>
+                <button class="btn btn-primary btn-full glow-btn" onclick="Wallet.purchaseVerified()">
+                    Get Verified Now
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay" style="display:none;">
+        <div class="spinner-large"></div>
+    </div>
+
+    <!-- Ad Containers -->
+    <div id="ad-interstitial" class="ad-interstitial" style="display:none;"></div>
+
+    <!-- Scripts -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/feed.js"></script>
+    <script src="js/profile.js"></script>
+    <script src="js/chat.js"></script>
+    <script src="js/live.js"></script>
+    <script src="js/shop.js"></script>
+    <script src="js/coins.js"></script>
+    <script src="js/games.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/ads.js"></script>
+    <script src="js/admin.js"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('SW registered'))
+                .catch(err => console.log('SW failed', err));
+        }
+    </script>
+</body>
+</html>
