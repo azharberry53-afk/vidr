@@ -8,8 +8,6 @@ const Notifications = {
     
     listen() {
         if (!App.currentUser) return;
-
-let firstLoad = true;
         
         this.listener = db.collection(Collections.NOTIFICATIONS)
             .where('userId', '==', App.currentUser.uid)
@@ -22,17 +20,10 @@ let firstLoad = true;
                 if (badge) {
                     badge.textContent = count;
                     badge.style.display = count > 0 ? 'flex' : 'none';
-// Play sound on new notification (skip first load)
-            if (!firstLoad) {
-                snapshot.docChanges().forEach(change => {
-                    if (change.type === 'added') {
-                        Sound.play('notification');
-                        Sound.haptic('notification');
                 }
             });
     },
-  firstLoad = false;    
-
+    
     async load() {
         const list = document.getElementById('notifications-list');
         list.innerHTML = '<div style="text-align:center;padding:40px;"><div class="spinner"></div></div>';
@@ -49,6 +40,7 @@ let firstLoad = true;
                 return;
             }
             
+            // FIXED typeConfig - check for commas!
             const typeConfig = {
                 like: { icon: '❤️', text: 'liked your post' },
                 comment: { icon: '💬', text: 'commented on your post' },
@@ -57,30 +49,41 @@ let firstLoad = true;
                 live: { icon: '🔴', text: 'is now LIVE' },
                 gift: { icon: '🎁', text: 'sent you a gift' },
                 sale: { icon: '🛍️', text: 'bought your product' },
-                mention: { icon: '📢', text: 'mentioned you' }
+                mention: { icon: '📢', text: 'mentioned you' },
+                friend_request: { icon: '👋', text: 'sent you a friend request' },
+                friend_accepted: { icon: '🤝', text: 'accepted your friend request' },
+                referral: { icon: '🎁', text: 'joined using your referral' }
             };
             
             let html = '';
-            
             const batch = db.batch();
             
             snapshot.forEach(doc => {
                 const notif = doc.data();
                 const config = typeConfig[notif.type] || { icon: '🔔', text: 'notification' };
                 
+                // Escape all values
+                const notifId = doc.id;
+                const notifType = notif.type || '';
+                const fromUserId = notif.fromUserId || '';
+                const postId = notif.postId || '';
+                const streamId = notif.streamId || '';
+                const chatId = notif.chatId || '';
+                const fromUser = (notif.fromUser || '').replace(/'/g, '&#39;');
+                const fromAvatar = notif.fromAvatar || 'assets/icons/default-avatar.png';
+                const message = notif.message ? `: "${(notif.message.substring(0, 30)).replace(/'/g, '&#39;')}"` : '';
+                
                 html += `
                     <div class="notification-item ${notif.isRead ? '' : 'unread'}" 
-                         onclick="Notifications.handleClick('${doc.id}', '${notif.type}', '${notif.fromUserId || ''}', '${notif.postId || ''}', '${notif.streamId || ''}', '${notif.chatId || ''}')">
+                         onclick="Notifications.handleClick('${notifId}','${notifType}','${fromUserId}','${postId}','${streamId}','${chatId}')">
                         <div style="position:relative;flex-shrink:0;">
-                            <img src="${notif.fromAvatar || 'assets/icons/default-avatar.png'}" 
-                                 class="notification-avatar" loading="lazy">
+                            <img src="${fromAvatar}" class="notification-avatar" loading="lazy">
                             <div style="position:absolute;bottom:-2px;right:-2px;font-size:0.9rem;">${config.icon}</div>
                         </div>
                         <div class="notification-content">
                             <div class="notification-text">
-                                <strong>${App.escapeHtml(notif.fromUser || '')}</strong>
-                                ${config.text}
-                                ${notif.message ? `: "${App.escapeHtml(notif.message.substring(0, 30))}"` : ''}
+                                <strong>${fromUser}</strong>
+                                ${config.text}${message}
                             </div>
                             <div class="notification-time">${App.timeAgo(notif.createdAt)}</div>
                         </div>
@@ -88,14 +91,12 @@ let firstLoad = true;
                     </div>
                 `;
                 
-                // Mark as read
                 batch.update(doc.ref, { isRead: true });
             });
             
             list.innerHTML = html;
             await batch.commit();
             
-            // Reset badge
             const badge = document.getElementById('notif-badge');
             if (badge) badge.style.display = 'none';
             
@@ -114,29 +115,31 @@ let firstLoad = true;
                 if (postId) Profile.openPost(postId);
                 break;
             case 'follow':
+            case 'friend_accepted':
                 if (fromUserId) Profile.viewProfile(fromUserId);
                 break;
+            case 'friend_request':
+                if (typeof Friends !== 'undefined') {
+                    Friends.openRequestsPage();
+                }
+                break;
             case 'message':
-                if (chatId) {
+                if (chatId && fromUserId) {
                     const userDoc = await db.collection(Collections.USERS).doc(fromUserId).get();
                     const user = userDoc.data();
-                    Chat.openRoom(chatId, fromUserId, user?.displayName || '', user?.photoURL || '');
+                    if (typeof Chat !== 'undefined') {
+                        Chat.openRoom(chatId, fromUserId, user?.displayName || '', user?.photoURL || '');
+                    }
                     App.navigate('chat');
                 }
                 break;
             case 'live':
-                if (streamId) Live.joinStream(streamId);
+                if (streamId && typeof Live !== 'undefined') Live.joinStream(streamId);
                 break;
             case 'sale':
+            case 'referral':
                 Wallet.history();
                 break;
-  case 'friend_request':
-            Friends.openRequestsPage();
-            break;
-            
-        case 'friend_accepted':
-            if (fromUserId) Profile.viewProfile(fromUserId);
-            break;
         }
     },
     
@@ -145,11 +148,11 @@ let firstLoad = true;
         
         try {
             await db.collection(Collections.NOTIFICATIONS).add({
-                userId,
-                type,
-                fromUserId: App.currentUser?.uid,
-                fromUser: App.currentUser?.displayName,
-                fromAvatar: App.currentUser?.photoURL,
+                userId: userId,
+                type: type,
+                fromUserId: App.currentUser?.uid || '',
+                fromUser: App.currentUser?.displayName || '',
+                fromAvatar: App.currentUser?.photoURL || '',
                 isRead: false,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                 ...data
