@@ -898,6 +898,8 @@
         <div class="spinner-large"></div>
     </div>
 
+<script src="js/sound.js"></script>
+
     <!-- All JavaScript Modules -->
     <script src="js/firebase-config.js"></script>
     <script src="js/app.js"></script>
@@ -919,6 +921,13 @@
     <script src="js/performance.js"></script>
 <script src="js/friends.js"></script>
     
+<!-- Initialize on DOM ready -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        Sound.init();
+    });
+</script>
+
     <!-- Adsterra Social Bar -->
     <script type="text/javascript">
         atOptions = {
