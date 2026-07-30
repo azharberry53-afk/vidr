@@ -56,30 +56,53 @@ self.addEventListener('install', event => {
     );
 });
 
-/* ==================
-   ACTIVATE EVENT
-   ================== */
+/* ============================================
+   FIX: js/sound.js
+   Around line 170 - suppress unnecessary warnings
+   ============================================ */
 
-self.addEventListener('activate', event => {
-    console.log('[SW] Activating...');
+play(soundName, options = {}) {
+    if (!this.enabled) return;
+    if (!this.userInteracted) return;
+    if (!this.sounds[soundName]) return;
     
-    event.waitUntil(
-        caches.keys().then(cacheNames => {
-            return Promise.all(
-                cacheNames
-                    .filter(name => 
-                        name !== STATIC_CACHE && 
-                        name !== DYNAMIC_CACHE && 
-                        name !== IMAGE_CACHE
-                    )
-                    .map(name => {
-                        console.log('[SW] Deleting old cache:', name);
-                        return caches.delete(name);
-                    })
-            );
-        }).then(() => self.clients.claim())
-    );
-});
+    // Throttle same sound
+    const now = Date.now();
+    if (this.lastPlayed[soundName] && now - this.lastPlayed[soundName] < this.minInterval) {
+        return;
+    }
+    this.lastPlayed[soundName] = now;
+    
+    try {
+        let audio = this.audioCache[soundName];
+        
+        if (!audio) {
+            audio = new Audio(this.sounds[soundName]);
+            this.audioCache[soundName] = audio;
+        }
+        
+        // Clone for overlapping playback
+        const clone = audio.cloneNode();
+        clone.volume = (options.volume ?? 1) * this.volume;
+        
+        if (options.playbackRate) {
+            clone.playbackRate = options.playbackRate;
+        }
+        
+        // ✅ SILENCE the console warnings
+        const playPromise = clone.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(() => {
+                // Silently ignore - normal browser behavior
+            });
+        }
+        
+        clone.onended = () => clone.remove();
+        
+    } catch (error) {
+        // Silent fail
+    }
+},
 
 /* ==================
    FETCH EVENT
