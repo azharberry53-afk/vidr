@@ -1,24 +1,57 @@
 {
-    "name": "Vidr",
+    "name": "Vidr - Share, Create, Earn",
     "short_name": "Vidr",
-    "description": "Share, Create, Earn",
+    "description": "Join millions creating and sharing amazing content on Vidr",
     "start_url": "/",
+    "scope": "/",
     "display": "standalone",
+    "orientation": "portrait-primary",
     "background_color": "#fdf2f8",
-    "theme_color": "#f8b4d9",
-    "orientation": "portrait",
+    "theme_color": "#c084fc",
+    "categories": ["social", "entertainment"],
+    "lang": "en",
+    "dir": "ltr",
+    "prefer_related_applications": false,
     "icons": [
         {
-            "src": "assets/logo/icon-192.png",
+            "src": "/assets/logo/favicon.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/assets/logo/icon-192.png",
             "sizes": "192x192",
             "type": "image/png",
             "purpose": "any maskable"
         },
         {
-            "src": "assets/logo/icon-512.png",
+            "src": "/assets/logo/icon-512.png",
             "sizes": "512x512",
             "type": "image/png",
             "purpose": "any maskable"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Create Post",
+            "short_name": "Create",
+            "description": "Create a new post",
+            "url": "/?action=create",
+            "icons": [{
+                "src": "/assets/logo/icon-192.png",
+                "sizes": "192x192"
+            }]
+        },
+        {
+            "name": "Go Live",
+            "short_name": "Live",
+            "description": "Start a live stream",
+            "url": "/?action=live",
+            "icons": [{
+                "src": "/assets/logo/icon-192.png",
+                "sizes": "192x192"
+            }]
         }
     ]
 }
