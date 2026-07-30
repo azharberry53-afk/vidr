@@ -435,6 +435,12 @@ const App = {
             xpAmount *= 2;
         }
         
+if (newLevel > this.currentUser.level) {
+        Sound.play('levelUp');
+        Sound.haptic('success');
+        this.showToast(`🎉 Level Up! Level ${newLevel}`, 'success');
+    }
+
         // Slow XP gain by default
         xpAmount = Math.ceil(xpAmount * 0.3);
         
@@ -529,6 +535,8 @@ const App = {
         if (newLevel > currentLevel) {
             const glowEffect = newLevel >= 5;
             const goldGlowEffect = newLevel >= 100;
+        Sound.play('achievement');
+        Sound.haptic('success');
             
             this.showToast(`🏆 Achievement Unlocked: ${achievementData.name} Lv.${newLevel}`, 'success');
         }
@@ -592,6 +600,25 @@ const App = {
             warning: '<i class="fas fa-exclamation-triangle" style="color: var(--warning)"></i>',
             info: '<i class="fas fa-info-circle" style="color: var(--primary)"></i>'
         };
+
+ // Play sound based on type
+    switch(type) {
+        case 'success':
+            Sound.play('success');
+            Sound.haptic('success');
+            break;
+        case 'error':
+            Sound.play('error');
+            Sound.haptic('error');
+            break;
+        case 'warning':
+            Sound.play('pop');
+            Sound.haptic('medium');
+            break;
+        default:
+            Sound.play('pop');
+            Sound.haptic('light');
+    }
         
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;

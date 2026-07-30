@@ -323,6 +323,8 @@ const Create = {
             App.grantAchievement('first_post', 1);
             
             App.showToast('Video posted! 🎉', 'success');
+Sound.play('success');
+Sound.haptic('success');
             this.closeEditor();
             
             // Refresh feed
@@ -489,6 +491,8 @@ const Create = {
             App.grantAchievement('first_post', 1);
             
             App.showToast('Photos posted! 📸', 'success');
+Sound.play('camera');
+Sound.haptic('success');
             this.closeEditor();
             Feed.refresh();
             

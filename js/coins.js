@@ -273,6 +273,8 @@ const Wallet = {
         }
         
         if (!success) {
+Sound.play('purchase');
+Sound.haptic('success');
             btn.disabled = false;
             btn.textContent = `Pay $${pkg.price.toFixed(2)}`;
             return;
@@ -794,7 +796,12 @@ const Rewards = {
             }
             
             App.updateCoinDisplay();
-            
+    Sound.play('coin');
+    Sound.haptic('success');
+               
+ if (reward.rarity.includes('Legendary')) {
+        Sound.play('achievement');
+    }
         } catch (error) {
             console.error('Daily reward error:', error);
         }
@@ -862,6 +869,8 @@ const Rewards = {
                 App.showToast(`Ad ${this.spinAdsWatched}/${this.requiredAds} watched! Keep going! ✨`, 'success');
             } else {
                 App.showToast('All ads watched! Now spin! 🎰', 'success');
+    Sound.play('spin');
+    Sound.haptic('medium');
             }
         });
     },
@@ -1023,6 +1032,8 @@ const Rewards = {
         let rewardText = '';
         
         if (value.type === 'free' && value.amount > 0) {
+        Sound.play('coin');
+        Sound.haptic('medium');
             await db.collection(Collections.USERS).doc(App.currentUser.uid).update({
                 freeCoins: firebase.firestore.FieldValue.increment(value.amount)
             });
@@ -1031,6 +1042,8 @@ const Rewards = {
             rewardText = `+⚡ ${value.amount}`;
             
         } else if (value.type === 'paid' && value.amount > 0) {
+      Sound.play('win');
+        Sound.haptic('success');
             const usdValue = value.amount / 100;
             await db.collection(Collections.USERS).doc(App.currentUser.uid).update({
                 goldCoins: firebase.firestore.FieldValue.increment(value.amount)
@@ -1044,6 +1057,7 @@ const Rewards = {
             message = '🎁 You won a free gift!';
             rewardText = '🎁 Free Gift';
         } else {
+Sound.play('pop');
             message = 'Better luck next time! 😅';
             rewardText = 'Try Again';
         }

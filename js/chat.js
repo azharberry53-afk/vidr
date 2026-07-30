@@ -173,6 +173,13 @@ const Chat = {
             .orderBy('createdAt', 'asc')
             .limit(100)
             .onSnapshot((snapshot) => {
+            if (change.type === 'added') {
+                const msg = change.doc.data();
+                // Only play for received messages
+                if (msg.senderId !== App.currentUser.uid) {
+                    Sound.play('message');
+                    Sound.haptic('notification');
+      
                 messagesEl.innerHTML = '';
                 
                 let lastDate = null;
@@ -297,6 +304,8 @@ const Chat = {
         
         // Notification
         Notifications.send(otherUserId, 'message', {
+ Sound.play('whoosh');
+    Sound.haptic('light');
             fromUser: App.currentUser.displayName,
             fromAvatar: App.currentUser.photoURL,
             message: text.substring(0, 50),

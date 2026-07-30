@@ -460,6 +460,8 @@ const Feed = {
         const countEl = btn.parentElement.querySelector('.feed-action-count');
         
         if (isLiked) {
+       Sound.play('like');
+        Sound.haptic('medium');
             // Unlike
             btn.classList.remove('liked');
             btn.dataset.liked = 'false';
@@ -471,6 +473,7 @@ const Feed = {
                 likedBy: firebase.firestore.FieldValue.arrayRemove(App.currentUser.uid)
             });
         } else {
+Sound.play('click');
             // Like
             btn.classList.add('liked');
             btn.dataset.liked = 'true';
@@ -513,6 +516,8 @@ const Feed = {
         const isFollowing = btn.classList.contains('following');
         
         if (isFollowing) {
+        Sound.play('follow');
+        Sound.haptic('medium');
             // Unfollow
             btn.classList.remove('following');
             btn.textContent = 'Follow';

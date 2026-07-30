@@ -8,6 +8,8 @@ const Notifications = {
     
     listen() {
         if (!App.currentUser) return;
+
+let firstLoad = true;
         
         this.listener = db.collection(Collections.NOTIFICATIONS)
             .where('userId', '==', App.currentUser.uid)
@@ -20,10 +22,17 @@ const Notifications = {
                 if (badge) {
                     badge.textContent = count;
                     badge.style.display = count > 0 ? 'flex' : 'none';
+// Play sound on new notification (skip first load)
+            if (!firstLoad) {
+                snapshot.docChanges().forEach(change => {
+                    if (change.type === 'added') {
+                        Sound.play('notification');
+                        Sound.haptic('notification');
                 }
             });
     },
-    
+  firstLoad = false;    
+
     async load() {
         const list = document.getElementById('notifications-list');
         list.innerHTML = '<div style="text-align:center;padding:40px;"><div class="spinner"></div></div>';

@@ -164,7 +164,59 @@ const Settings = {
                         </div>
                     </div>
                 </div>
-                
+                // Add to Settings.open() HTML, in the Appearance section:
+
+<div class="settings-item">
+    <div class="settings-icon" style="background:var(--pastel-purple);">
+        <i class="fas fa-volume-up" style="color:var(--primary);"></i>
+    </div>
+    <div class="settings-info">
+        <div class="settings-label">Sound Effects</div>
+        <div class="settings-sub">In-app sounds & feedback</div>
+    </div>
+    <label class="toggle-switch">
+        <input type="checkbox" id="sound-toggle"
+               ${Sound.enabled ? 'checked' : ''}
+               onchange="Sound.toggle()">
+        <span class="toggle-slider"></span>
+    </label>
+</div>
+
+<div class="settings-item" style="flex-direction:column;align-items:flex-start;padding:16px;">
+    <div style="display:flex;align-items:center;gap:12px;width:100%;margin-bottom:8px;">
+        <div class="settings-icon" style="background:var(--pastel-blue);">
+            <i class="fas fa-sliders-h" style="color:var(--accent);"></i>
+        </div>
+        <div class="settings-info">
+            <div class="settings-label">Volume</div>
+            <div class="settings-sub">Adjust sound level</div>
+        </div>
+        <span id="volume-display" style="font-weight:700;color:var(--primary);">
+            ${Math.round(Sound.volume * 100)}%
+        </span>
+    </div>
+    <input type="range" min="0" max="100" 
+           value="${Sound.volume * 100}"
+           style="width:100%;margin-top:8px;accent-color:var(--primary);"
+           oninput="Sound.setVolume(this.value/100); 
+                    document.getElementById('volume-display').textContent = this.value + '%';
+                    Sound.play('click')">
+</div>
+
+<div class="settings-item">
+    <div class="settings-icon" style="background:var(--pastel-pink);">
+        <i class="fas fa-mobile-alt" style="color:var(--secondary-dark);"></i>
+    </div>
+    <div class="settings-info">
+        <div class="settings-label">Haptic Feedback</div>
+        <div class="settings-sub">Vibration on actions (mobile)</div>
+    </div>
+    <label class="toggle-switch">
+        <input type="checkbox" id="haptic-toggle" checked
+               onchange="Sound.hapticEnabled = this.checked; localStorage.setItem('vidr_haptic_enabled', this.checked)">
+        <span class="toggle-slider"></span>
+    </label>
+</div>
                 <!-- Support -->
                 <div class="settings-section">
                     <div class="settings-section-title">Support</div>
