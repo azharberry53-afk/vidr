@@ -490,6 +490,11 @@ const Chat = {
         document.body.appendChild(modal);
     },
     
+    /* ============================================
+   FIX: js/chat.js
+   Replace searchForChat and add startChatWithUser
+   ============================================ */
+
     async searchForChat(query, resultId) {
         if (!query.trim()) return;
         
@@ -500,45 +505,54 @@ const Chat = {
             .get();
         
         const el = document.getElementById(resultId);
+        if (!el) return;
+        
         let html = '';
         
         snapshot.forEach(doc => {
             const user = doc.data();
             if (doc.id === App.currentUser.uid) return;
             if (user.role === 'admin' && !App.isAdmin) return;
+            
+            // ✅ Extract values safely
             const uid = doc.id;
-        const displayName = (user.displayName || '').replace(/'/g, "&#39;");
-        const username = (user.username || '').replace(/'/g, "&#39;");
-        const photoURL = user.photoURL || '';
-        
-        html += `
-            <div class="search-result-item" 
-                 onclick="Chat.startChatWithUser('${uid}')">
-                <img src="${photoURL || 'assets/icons/default-avatar.png'}" 
-                     class="search-result-avatar" loading="lazy">
-                <div class="search-result-info">
-                    <div class="search-result-name">${displayName}</div>
-                    <div class="search-result-username">@${username}</div>
+            const displayName = App.escapeHtml(user.displayName || '');
+            const username = App.escapeHtml(user.username || '');
+            const photoURL = user.photoURL || 'assets/icons/default-avatar.png';
+            
+            html += `
+                <div class="search-result-item" onclick="Chat.startChatWithUser('${uid}')">
+                    <img src="${photoURL}" class="search-result-avatar" loading="lazy"
+                         onerror="this.src='assets/icons/default-avatar.png'">
+                    <div class="search-result-info">
+                        <div class="search-result-name">${displayName}</div>
+                        <div class="search-result-username">@${username}</div>
+                    </div>
                 </div>
-            </div>
-        `;
-    });
+            `;
+        });
+        
+        el.innerHTML = html || '<p style="text-align:center;color:var(--text-tertiary);padding:20px;">No users found</p>';
+    },
     
-    if (el) el.innerHTML = html || '<p style="text-align:center;color:var(--text-tertiary);padding:20px;">No users found</p>';
-},
-
-// NEW helper method - safer than inline
-async startChatWithUser(uid) {
-    // Close any open modal
-    document.querySelector('.modal-overlay:last-child')?.remove();
-    
-    // Get user data
-    const userDoc = await db.collection(Collections.USERS).doc(uid).get();
-    if (!userDoc.exists) return;
-    
-    const user = userDoc.data();
-    this.openWithUser(uid, user.displayName || '', user.photoURL || '');
-}
+    // NEW helper method - fixes escape issues
+    async startChatWithUser(uid) {
+        // Close any open modal
+        document.querySelector('.modal-overlay')?.remove();
+        
+        try {
+            const userDoc = await db.collection(Collections.USERS).doc(uid).get();
+            if (!userDoc.exists) {
+                App.showToast('User not found', 'error');
+                return;
+            }
+            
+            const user = userDoc.data();
+            this.openWithUser(uid, user.displayName || '', user.photoURL || '');
+        } catch (error) {
+            App.showToast('Error opening chat', 'error');
+        }
+    },
     
     /* ==================
        ROOM OPTIONS
