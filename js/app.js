@@ -558,7 +558,7 @@ if (newLevel > this.currentUser.level) {
         }, { merge: true });
     },
     
-    getAchievementData(id) {
+      getAchievementData(id) {
         const achievements = {
             welcome: { name: 'Welcome', icon: '👋', progressPerLevel: 1, desc: 'Join Vidr' },
             first_post: { name: 'Creator', icon: '🎬', progressPerLevel: 5, desc: 'Create posts' },
