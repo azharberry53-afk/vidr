@@ -90,22 +90,24 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 </head>
 <body>
-    <!-- Splash Screen -->
-    <div id="splash-screen" class="splash-screen">
-        <div class="splash-content">
-            <div class="splash-logo">
-                <svg width="80" height="80" viewBox="0 0 80 80" class="vidr-logo-svg">
-                    <defs>
-                        <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:#f8b4d9;stop-opacity:1" />
-                            <stop offset="50%" style="stop-color:#c084fc;stop-opacity:1" />
-                            <stop offset="100%" style="stop-color:#818cf8;stop-opacity:1" />
-                        </linearGradient>
-                    </defs>
-                    <rect rx="20" width="80" height="80" fill="url(#logoGrad)"/>
-                    <text x="50%" y="55%" text-anchor="middle" fill="white" font-size="32" font-weight="800" font-family="Poppins">V</text>
-                </svg>
-            </div>
+<!-- Splash Screen -->
+<div id="splash-screen" class="splash-screen">
+    <div class="splash-content">
+        <div class="splash-logo">
+            <img src="assets/logo/icon-192.png" 
+                 alt="Vidr" 
+                 class="splash-logo-img"
+                 width="100" 
+                 height="100"
+                 style="width:100px;height:100px;border-radius:24px;
+                        box-shadow:0 8px 32px rgba(0,0,0,0.2);">
+        </div>
+        <h1 class="splash-title">vidr</h1>
+        <div class="splash-loader">
+            <div class="loader-bar"></div>
+        </div>
+    </div>
+</div>
             <h1 class="splash-title">vidr</h1>
             <div class="splash-loader">
                 <div class="loader-bar"></div>
@@ -113,26 +115,19 @@
         </div>
     </div>
 
-    <!-- Login Screen -->
-    <div id="login-screen" class="screen" style="display:none;">
-        <div class="login-container">
-            <div class="login-header">
-                <div class="login-logo">
-                    <svg width="60" height="60" viewBox="0 0 80 80" class="vidr-logo-svg">
-                        <defs>
-                            <linearGradient id="logoGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" style="stop-color:#f8b4d9" />
-                                <stop offset="50%" style="stop-color:#c084fc" />
-                                <stop offset="100%" style="stop-color:#818cf8" />
-                            </linearGradient>
-                        </defs>
-                        <rect rx="20" width="80" height="80" fill="url(#logoGrad2)"/>
-                        <text x="50%" y="55%" text-anchor="middle" fill="white" font-size="32" font-weight="800" font-family="Poppins">V</text>
-                    </svg>
-                </div>
-                <h1>Welcome to <span class="gradient-text">Vidr</span></h1>
-                <p>Share, Create, Earn</p>
-            </div>
+    <!-- Login Screen - login-header section -->
+<div class="login-header">
+    <div class="login-logo">
+        <img src="assets/logo/icon-192.png" 
+             alt="Vidr" 
+             width="80" 
+             height="80"
+             style="width:80px;height:80px;border-radius:20px;
+                    box-shadow:0 4px 20px rgba(192,132,252,0.3);">
+    </div>
+    <h1>Welcome to <span class="gradient-text">Vidr</span></h1>
+    <p>Share, Create, Earn</p>
+</div>
             
             <div class="login-form">
                 <!-- Email Login -->
@@ -164,13 +159,19 @@
         </div>
     </div>
 
-    <!-- Register Screen -->
-    <div id="register-screen" class="screen" style="display:none;">
-        <div class="login-container">
-            <div class="login-header">
-                <h1>Create Account</h1>
-                <p>Join <span class="gradient-text">Vidr</span> today</p>
-            </div>
+   <!-- Register Screen - login-header section -->
+<div class="login-header">
+    <div class="login-logo">
+        <img src="assets/logo/icon-192.png" 
+             alt="Vidr" 
+             width="80" 
+             height="80"
+             style="width:80px;height:80px;border-radius:20px;
+                    box-shadow:0 4px 20px rgba(192,132,252,0.3);">
+    </div>
+    <h1>Create Account</h1>
+    <p>Join <span class="gradient-text">Vidr</span> today</p>
+</div>
             
             <div class="login-form">
                 <div class="form-group">
@@ -212,37 +213,32 @@
     <!-- Main App -->
     <div id="main-app" class="screen" style="display:none;">
         
-        <!-- Top Header -->
-        <header id="top-header" class="top-header">
-            <div class="header-left">
-                <svg width="28" height="28" viewBox="0 0 80 80" class="header-logo">
-                    <defs>
-                        <linearGradient id="logoGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:#f8b4d9" />
-                            <stop offset="50%" style="stop-color:#c084fc" />
-                            <stop offset="100%" style="stop-color:#818cf8" />
-                        </linearGradient>
-                    </defs>
-                    <rect rx="20" width="80" height="80" fill="url(#logoGrad3)"/>
-                    <text x="50%" y="55%" text-anchor="middle" fill="white" font-size="32" font-weight="800" font-family="Poppins">V</text>
-                </svg>
-            </div>
-            <div class="header-center">
-                <div class="feed-tabs">
-                    <button class="feed-tab active" data-tab="foryou" onclick="Feed.switchTab('foryou')">For You</button>
-                    <button class="feed-tab" data-tab="following" onclick="Feed.switchTab('following')">Following</button>
-                </div>
-            </div>
-            <div class="header-right">
-                <button class="header-icon-btn" onclick="App.openSearch()">
-                    <i class="fas fa-search"></i>
-                </button>
-                <button class="header-icon-btn notification-btn" onclick="App.openNotifications()">
-                    <i class="fas fa-bell"></i>
-                    <span class="notification-badge" id="notif-badge" style="display:none;">0</span>
-                </button>
-            </div>
-        </header>
+       <!-- Top Header - header-left section -->
+<header id="top-header" class="top-header">
+    <div class="header-left">
+        <img src="assets/logo/icon-192.png" 
+             alt="Vidr" 
+             class="header-logo"
+             width="32" 
+             height="32"
+             style="width:32px;height:32px;border-radius:8px;">
+    </div>
+    <div class="header-center">
+        <div class="feed-tabs">
+            <button class="feed-tab active" data-tab="foryou" onclick="Feed.switchTab('foryou')">For You</button>
+            <button class="feed-tab" data-tab="following" onclick="Feed.switchTab('following')">Following</button>
+        </div>
+    </div>
+    <div class="header-right">
+        <button class="header-icon-btn" onclick="App.openSearch()">
+            <i class="fas fa-search"></i>
+        </button>
+        <button class="header-icon-btn notification-btn" onclick="App.openNotifications()">
+            <i class="fas fa-bell"></i>
+            <span class="notification-badge" id="notif-badge" style="display:none;">0</span>
+        </button>
+    </div>
+</header>
 
         <!-- Feed Container -->
         <main id="feed-container" class="feed-container">
@@ -281,13 +277,17 @@
     <i class="fas fa-comment-dots"></i>
     <span>Chat</span>
     <span class="chat-badge" id="chat-badge" style="display:none;">0</span>
+</button><!-- Bottom Navigation - Me button -->
+<button class="nav-item" data-page="profile" onclick="App.navigate('profile')">
+    <div class="nav-avatar">
+        <img id="nav-avatar-img" 
+             src="assets/icons/default-avatar.png" 
+             alt="Me"
+             width="26" 
+             height="26">
+    </div>
+    <span>Me</span>
 </button>
-            <button class="nav-item" data-page="profile" onclick="App.navigate('profile')">
-                <div class="nav-avatar">
-                    <img id="nav-avatar-img" src="assets/icons/default-avatar.png" alt="">
-                </div>
-                <span>Me</span>
-            </button>
         </nav>
     </div>
 
