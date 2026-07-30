@@ -134,51 +134,53 @@ const Sound = {
        PLAY SOUND
        ================== */
     
-    play(soundName, options = {}) {
-        if (!this.enabled) return;
-        if (!this.userInteracted) return;
-        if (!this.sounds[soundName]) {
-            console.warn(`Sound not found: ${soundName}`);
-            return;
+/* ============================================
+   FIX: js/sound.js
+   Around line 170 - suppress unnecessary warnings
+   ============================================ */
+
+play(soundName, options = {}) {
+    if (!this.enabled) return;
+    if (!this.userInteracted) return;
+    if (!this.sounds[soundName]) return;
+    
+    // Throttle same sound
+    const now = Date.now();
+    if (this.lastPlayed[soundName] && now - this.lastPlayed[soundName] < this.minInterval) {
+        return;
+    }
+    this.lastPlayed[soundName] = now;
+    
+    try {
+        let audio = this.audioCache[soundName];
+        
+        if (!audio) {
+            audio = new Audio(this.sounds[soundName]);
+            this.audioCache[soundName] = audio;
         }
         
-        // Throttle same sound
-        const now = Date.now();
-        if (this.lastPlayed[soundName] && now - this.lastPlayed[soundName] < this.minInterval) {
-            return;
-        }
-        this.lastPlayed[soundName] = now;
+        // Clone for overlapping playback
+        const clone = audio.cloneNode();
+        clone.volume = (options.volume ?? 1) * this.volume;
         
-        try {
-            // Get or create audio element
-            let audio = this.audioCache[soundName];
-            
-            if (!audio) {
-                audio = new Audio(this.sounds[soundName]);
-                this.audioCache[soundName] = audio;
-            }
-            
-            // Clone for overlapping playback
-            const clone = audio.cloneNode();
-            clone.volume = (options.volume ?? 1) * this.volume;
-            
-            if (options.playbackRate) {
-                clone.playbackRate = options.playbackRate;
-            }
-            
-            clone.play().catch(err => {
-                console.warn('Sound play blocked:', soundName);
+        if (options.playbackRate) {
+            clone.playbackRate = options.playbackRate;
+        }
+        
+        // ✅ SILENCE the console warnings
+        const playPromise = clone.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(() => {
+                // Silently ignore - normal browser behavior
             });
-            
-            // Cleanup after playing
-            clone.onended = () => {
-                clone.remove();
-            };
-            
-        } catch (error) {
-            console.warn('Sound error:', error);
         }
-    },
+        
+        clone.onended = () => clone.remove();
+        
+    } catch (error) {
+        // Silent fail
+    }
+},
     
     /* ==================
        PLAY WITH VARIATION
