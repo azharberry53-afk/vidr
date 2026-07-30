@@ -276,8 +276,10 @@ const Profile = {
                     ` : ''}
                     ` : `
                     <!-- Other user actions -->
-                    async renderActionButtons(userData, isFollowing) {
-    const friendBtnHtml = await Friends.renderFriendButton(userData.uid);
+                 async renderActionButtons(userData, isFollowing) {
+    const displayName = App.escapeHtml(userData.displayName || '').replace(/'/g, "\\'");
+    const photoURL = (userData.photoURL || '').replace(/'/g, "\\'");
+    const uid = userData.uid;
     
     return `
         ${friendBtnHtml}
@@ -287,12 +289,7 @@ const Profile = {
                 onclick="Profile.toggleFollow('${userData.uid}', this)">
             ${isFollowing ? 'Following' : 'Follow'}
         </button>
-        <button class="btn btn-secondary profile-action-btn" 
-                onclick="Chat.openWithUser(
-                    '${userData.uid}', 
-                    '${App.escapeHtml(userData.displayName)}', 
-                    '${userData.photoURL || ''}'
-                )">
+           <button onclick="Chat.openWithUser('${uid}', '${displayName}', '${photoURL}')">
             <i class="fas fa-comment"></i>
         </button>
         <button class="btn btn-secondary profile-action-btn" 
