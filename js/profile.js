@@ -146,16 +146,11 @@ const Profile = {
                 
                 <!-- Cover Banner -->
                 <div class="profile-cover ${hasAnimatedCover ? 'animated-cover' : ''}" 
-                     id="profile-cover-${userData.uid}"
-                     style="background: ${userData.coverURL ? 'none' : 'var(--gradient-primary)'}">
-                    ${userData.coverURL 
-                        ? `<img src="${userData.coverURL}" class="profile-cover-img" loading="lazy">`
-                        : ''}
-                    ${isMyProfile ? `
-                    <button class="cover-edit-btn" onclick="Profile.editCover()">
-                        <i class="fas fa-camera"></i>
-                    </button>
-                    ` : ''}
+     id="profile-cover-${userData.uid}">
+    <img src="${userData.coverURL || 'assets/icons/default-cover.png'}" 
+         class="profile-cover-img" 
+         loading="lazy"
+         onerror="this.src='assets/icons/default-cover.png'">
                 </div>
                 
                 <!-- Profile Photo -->
