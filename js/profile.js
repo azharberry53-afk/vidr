@@ -79,8 +79,7 @@ const Profile = {
     /* ==================
        RENDER PROFILE
        ================== */
-    
-    async renderProfile(userData, isMyProfile) {
+       async renderProfile(userData, isMyProfile) {
         const container = isMyProfile 
             ? document.getElementById('profile-page')
             : document.getElementById('view-profile-overlay');
@@ -90,99 +89,252 @@ const Profile = {
         const isVerified = userData.isVerified;
         const isOwnAdmin = App.isAdmin;
         
-        // Animated effects
         const hasGlowName = isVerified || isAdmin;
         const hasGlowBorder = isVerified || isAdmin;
         const hasAnimatedCover = isVerified || isAdmin;
         
-        // Get follow status
+        // ✅ SAFE: Extract & escape values FIRST
+        const uid = userData.uid;
+        const displayNameRaw = userData.displayName || 'User';
+        const displayName = App.escapeHtml(displayNameRaw);
+        const displayNameJS = displayNameRaw.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        const username = App.escapeHtml(userData.username || 'user');
+        const photoURL = userData.photoURL || 'assets/icons/default-avatar.png';
+        const coverURL = userData.coverURL || 'assets/icons/default-cover.png';
+        const bio = App.escapeHtml(userData.bio || '');
+        
         let isFollowing = false;
         let isMutual = false;
         if (!isMyProfile && App.currentUser) {
-            isFollowing = await Feed.checkFollowing(userData.uid);
-            const theyFollowYou = await this.checkIfFollows(userData.uid, App.currentUser.uid);
+            isFollowing = await Feed.checkFollowing(uid);
+            const theyFollowYou = await this.checkIfFollows(uid, App.currentUser.uid);
             isMutual = isFollowing && theyFollowYou;
         }
         
-        // Get selected achievements
-        const achievements = await this.getUserAchievements(userData.uid, userData.selectedAchievements || []);
-        
-        // Level info
+        const achievements = await this.getUserAchievements(uid, userData.selectedAchievements || []);
         const levelInfo = this.getLevelTitle(userData.level || 1);
         const xpProgress = this.getXPProgress(userData.xp || 0, userData.level || 1);
-        
-        // Check if private
         const canViewContent = !userData.isPrivate || isMyProfile || isFollowing || isOwnAdmin;
         
-        // Tags for admin/mod
         let roleTag = '';
         if (isAdmin) roleTag = '<span class="user-tag admin">ADMIN</span>';
         else if (isMod) roleTag = '<span class="user-tag moderator">MOD</span>';
         
-        // Verified badge
-        const verifiedBadge = isVerified || isAdmin 
+        const verifiedBadge = (isVerified || isAdmin)
             ? '<i class="fas fa-check-circle" style="color:var(--accent);filter:drop-shadow(0 0 4px rgba(129,140,248,0.6))"></i>' 
             : '';
         
-        // Titles
         const titleHtml = userData.selectedTitle 
-            ? `<span class="title-badge ${this.getTitleRarity(userData.selectedTitle)}">${userData.selectedTitle}</span>` 
+            ? `<span class="title-badge ${this.getTitleRarity(userData.selectedTitle)}">${App.escapeHtml(userData.selectedTitle)}</span>` 
             : '';
         
-        // XP Boost indicator
         const boostHtml = userData.xpBoostActive 
             ? '<span class="xp-boost-active">⚡ 2x XP</span>' 
             : '';
         
-        const html = `
-            <!-- Profile Header -->
-            <div class="profile-header-container" style="position:relative;">
-                <!-- Back Button (for viewed profiles) -->
-                ${!isMyProfile ? `
-                <button class="profile-back-btn" onclick="App.closeOverlay('view-profile-overlay')">
-                    <i class="fas fa-arrow-left"></i>
+        // ✅ BUILD action buttons SAFELY
+        let actionButtonsHtml = '';
+        
+        if (isMyProfile) {
+            actionButtonsHtml = `
+                <button class="btn btn-secondary profile-action-btn" onclick="Profile.openEditProfile()">
+                    <i class="fas fa-edit"></i> Edit Profile
                 </button>
-                ` : ''}
+                <button class="btn btn-secondary profile-action-btn" onclick="Wallet.open()">
+                    💰 Wallet
+                </button>
+            `;
+            
+            if (!isVerified) {
+                actionButtonsHtml += `
+                    <button class="btn btn-primary profile-action-btn glow-btn" 
+                            onclick="document.getElementById('verified-modal').style.display='flex'">
+                        ✨ Get Verified
+                    </button>
+                `;
+            }
+            
+            if (isAdmin) {
+                actionButtonsHtml += `
+                    <button class="btn btn-danger profile-action-btn" 
+                            onclick="document.getElementById('admin-panel').style.display='block'">
+                        ⚙️ Admin Panel
+                    </button>
+                `;
+            }
+        } else {
+            const followBtnClass = isFollowing ? 'btn-secondary' : 'btn-primary';
+            const followBtnText = isFollowing ? 'Following' : 'Follow';
+            
+            actionButtonsHtml = `
+                <button class="btn ${followBtnClass} profile-action-btn" 
+                        id="follow-btn-${uid}"
+                        onclick="Profile.toggleFollow('${uid}', this)">
+                    ${followBtnText}
+                </button>
+                <button class="btn btn-secondary profile-action-btn" 
+                        onclick="Chat.startChatWithUser('${uid}')">
+                    <i class="fas fa-comment"></i>
+                </button>
+                <button class="btn btn-secondary profile-action-btn" 
+                        onclick="Profile.moreOptions('${uid}')">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+            `;
+        }
+        
+        // Build achievements
+        let achievementsHtml = '';
+        if (achievements.length > 0) {
+            achievementsHtml = `
+                <div class="profile-achievements-row">
+                    ${achievements.slice(0, 3).map(ach => {
+                        const glowClass = ach.level >= 100 ? 'gold-glow' : ach.level >= 5 ? 'glow-effect' : '';
+                        return `
+                            <div class="profile-achievement-badge ${glowClass}" 
+                                 title="${App.escapeHtml(ach.name)} Lv.${ach.level}">
+                                <span class="ach-icon">${ach.icon}</span>
+                                <span class="ach-level">Lv.${ach.level}</span>
+                            </div>
+                        `;
+                    }).join('')}
+                    ${isMyProfile ? '<button class="edit-ach-btn" onclick="Profile.editAchievements()">✏️</button>' : ''}
+                </div>
+            `;
+        } else if (isMyProfile) {
+            achievementsHtml = `
+                <div class="profile-achievements-row">
+                    <button class="add-ach-btn" onclick="Profile.editAchievements()">+ Add Achievements</button>
+                </div>
+            `;
+        }
+        
+        // Build quick buttons (own profile only)
+        let quickButtonsHtml = '';
+        if (isMyProfile) {
+            quickButtonsHtml = `
+                <div class="profile-quick-btns">
+                    <button class="quick-btn" onclick="document.getElementById('games-page').style.display='block'; if(typeof Games!=='undefined')Games.init()">
+                        🎮 Mini Games
+                    </button>
+                    <button class="quick-btn" onclick="document.getElementById('leaderboard-page').style.display='block'; if(typeof Leaderboard!=='undefined')Leaderboard.load()">
+                        🏆 Leaderboard
+                    </button>
+                    <button class="quick-btn" onclick="document.getElementById('xp-boost-modal').style.display='flex'">
+                        ⚡ XP Boost
+                    </button>
+                    ${typeof Settings !== 'undefined' ? '<button class="quick-btn" onclick="Settings.open()">⚙️ Settings</button>' : ''}
+                    ${isAdmin ? '<button class="quick-btn" onclick="document.getElementById(\'admin-panel\').style.display=\'block\'">⚙️ Admin</button>' : ''}
+                </div>
+            `;
+        }
+        
+        // Build content tabs
+        let tabsHtml = `
+            <button class="profile-tab active" data-tab="posts" onclick="Profile.switchContentTab('posts', '${uid}', this)">
+                <i class="fas fa-th"></i> Posts
+            </button>
+        `;
+        
+        if (isMyProfile) {
+            tabsHtml += `
+                <button class="profile-tab" data-tab="liked" onclick="Profile.switchContentTab('liked', '${uid}', this)">
+                    <i class="fas fa-heart"></i> Liked
+                </button>
+            `;
+        }
+        
+        if (isVerified || isAdmin) {
+            tabsHtml += `
+                <button class="profile-tab" data-tab="shop" onclick="Profile.switchContentTab('shop', '${uid}', this)">
+                    <i class="fas fa-shopping-bag"></i> Shop
+                </button>
+            `;
+        }
+        
+        // Build back button (only for viewed profiles)
+        const backButtonHtml = !isMyProfile 
+            ? `<button class="profile-back-btn" onclick="App.closeOverlay('view-profile-overlay')">
+                 <i class="fas fa-arrow-left"></i>
+               </button>`
+            : '';
+        
+        // Build cover edit button
+        const coverEditHtml = isMyProfile 
+            ? `<button class="cover-edit-btn" onclick="Profile.editCover()">
+                 <i class="fas fa-camera"></i>
+               </button>`
+            : '';
+        
+        // Build avatar edit button
+        const avatarEditHtml = isMyProfile 
+            ? `<button class="avatar-edit-btn" onclick="Profile.editAvatar()">
+                 <i class="fas fa-camera"></i>
+               </button>`
+            : '';
+        
+        // Content grid or private notice
+        const contentGridHtml = canViewContent 
+            ? `<div class="profile-content-grid" id="profile-grid-${uid}">
+                 <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-tertiary);">
+                     <div class="spinner"></div>
+                 </div>
+               </div>`
+            : `<div class="private-account-notice">
+                 <i class="fas fa-lock"></i>
+                 <h3>This account is private</h3>
+                 <p>Follow to see their posts</p>
+               </div>`;
+        
+        // Mutual friends badge
+        const mutualHtml = isMutual 
+            ? '<div class="mutual-badge"><i class="fas fa-handshake"></i> Mutual Friends</div>' 
+            : '';
+        
+        // Bio section
+        let bioHtml = '';
+        if (bio) {
+            bioHtml = `<p class="profile-bio">${bio}</p>`;
+        } else if (isMyProfile) {
+            bioHtml = '<button class="add-bio-btn" onclick="Profile.editBio()">+ Add bio</button>';
+        }
+        
+        // ASSEMBLE FULL HTML
+        const html = `
+            <div class="profile-header-container">
+                ${backButtonHtml}
                 
-                <!-- Cover Banner -->
-                <div class="profile-cover ${hasAnimatedCover ? 'animated-cover' : ''}" 
-     id="profile-cover-${userData.uid}">
-    <img src="${userData.coverURL || 'assets/icons/default-cover.png'}" 
-         class="profile-cover-img" 
-         loading="lazy"
-         onerror="this.src='assets/icons/default-cover.png'">
+                <div class="profile-cover ${hasAnimatedCover ? 'animated-cover' : ''}" id="profile-cover-${uid}">
+                    <img src="${coverURL}" 
+                         class="profile-cover-img" 
+                         loading="lazy"
+                         onerror="this.src='assets/icons/default-cover.png'">
+                    ${coverEditHtml}
                 </div>
                 
-                <!-- Profile Photo -->
                 <div class="profile-avatar-wrapper">
                     <div class="profile-avatar-ring ${hasGlowBorder ? 'verified-glow-border' : ''}">
-                        <img src="${userData.photoURL || 'assets/icons/default-avatar.png'}" 
+                        <img src="${photoURL}" 
                              class="profile-avatar ${userData.animatedAvatar ? 'animated-avatar' : ''}"
-                             id="profile-avatar-${userData.uid}"
-                             loading="lazy">
-                        ${isMyProfile ? `
-                        <button class="avatar-edit-btn" onclick="Profile.editAvatar()">
-                            <i class="fas fa-camera"></i>
-                        </button>
-                        ` : ''}
+                             id="profile-avatar-${uid}"
+                             loading="lazy"
+                             onerror="this.src='assets/icons/default-avatar.png'">
+                        ${avatarEditHtml}
                     </div>
                 </div>
             </div>
             
-            <!-- Profile Info -->
             <div class="profile-info-section">
-                <!-- Name & Badges -->
                 <div class="profile-name-row">
                     <h2 class="profile-display-name ${hasGlowName ? 'glow-name' : ''}">
-                        ${App.escapeHtml(userData.displayName || 'User')}
+                        ${displayName}
                     </h2>
                     ${verifiedBadge}
                     ${roleTag}
                 </div>
                 
-                <p class="profile-username">@${App.escapeHtml(userData.username || 'user')}</p>
+                <p class="profile-username">@${username}</p>
                 
-                <!-- Level & Title Row -->
                 <div class="profile-level-row">
                     ${boostHtml}
                     <div class="level-badge">
@@ -192,7 +344,6 @@ const Profile = {
                     ${titleHtml}
                 </div>
                 
-                <!-- XP Bar -->
                 <div class="xp-bar-wrapper">
                     <div class="xp-bar">
                         <div class="xp-bar-fill" style="width: ${xpProgress}%"></div>
@@ -200,32 +351,15 @@ const Profile = {
                     <span class="xp-text">${userData.xp || 0} XP</span>
                 </div>
                 
-                <!-- Achievements Row (up to 3) -->
-                ${achievements.length > 0 ? `
-                <div class="profile-achievements-row">
-                    ${achievements.slice(0, 3).map(ach => `
-                        <div class="profile-achievement-badge ${ach.level >= 100 ? 'gold-glow' : ach.level >= 5 ? 'glow-effect' : ''}" 
-                             title="${ach.name} Lv.${ach.level}">
-                            <span class="ach-icon">${ach.icon}</span>
-                            <span class="ach-level">Lv.${ach.level}</span>
-                        </div>
-                    `).join('')}
-                    ${isMyProfile ? `<button class="edit-ach-btn" onclick="Profile.editAchievements()">✏️</button>` : ''}
-                </div>
-                ` : isMyProfile ? `
-                <div class="profile-achievements-row">
-                    <button class="add-ach-btn" onclick="Profile.editAchievements()">+ Add Achievements</button>
-                </div>
-                ` : ''}
+                ${achievementsHtml}
                 
-                <!-- Stats -->
                 <div class="profile-stats">
-                    <div class="stat-item" onclick="Profile.viewFollowing('${userData.uid}')">
+                    <div class="stat-item" onclick="Profile.viewFollowing('${uid}')">
                         <h3 class="stat-number">${App.formatNumber(userData.following || 0)}</h3>
                         <p class="stat-label">Following</p>
                     </div>
                     <div class="stat-divider"></div>
-                    <div class="stat-item" onclick="Profile.viewFollowers('${userData.uid}')">
+                    <div class="stat-item" onclick="Profile.viewFollowers('${uid}')">
                         <h3 class="stat-number">${App.formatNumber(userData.followers || 0)}</h3>
                         <p class="stat-label">Followers</p>
                     </div>
@@ -236,139 +370,28 @@ const Profile = {
                     </div>
                 </div>
                 
-                <!-- Bio -->
-                ${userData.bio ? `
-                <p class="profile-bio">${App.escapeHtml(userData.bio)}</p>
-                ` : isMyProfile ? `
-                <button class="add-bio-btn" onclick="Profile.editBio()">+ Add bio</button>
-                ` : ''}
+                ${bioHtml}
+                ${mutualHtml}
                 
-                <!-- Mutual Friends -->
-                ${isMutual ? `
-                <div class="mutual-badge">
-                    <i class="fas fa-handshake"></i> Mutual Friends
-                </div>
-                ` : ''}
-                
-                <!-- Action Buttons -->
                 <div class="profile-actions">
-                    ${isMyProfile ? `
-                    <button class="btn btn-secondary profile-action-btn" onclick="Profile.openEditProfile()">
-                        <i class="fas fa-edit"></i> Edit Profile
-                    </button>
-                    <button class="btn btn-secondary profile-action-btn" onclick="Wallet.open()">
-                        💰 Wallet
-                    </button>
-                    ${!isVerified ? `
-                    <button class="btn btn-primary profile-action-btn glow-btn" onclick="App.closeModal('verified-modal');document.getElementById('verified-modal').style.display='flex'">
-                        ✨ Get Verified
-                    </button>
-                    ` : ''}
-                    ${isAdmin ? `
-                    <button class="btn btn-danger profile-action-btn" onclick="document.getElementById('admin-panel').style.display='block'">
-                        ⚙️ Admin Panel
-                    </button>
-                    ` : ''}
-                    ` : `
-                    <!-- Other user actions -->
-                 async renderActionButtons(userData, isFollowing) {
-    const displayName = App.escapeHtml(userData.displayName || '').replace(/'/g, "\\'");
-    const photoURL = (userData.photoURL || '').replace(/'/g, "\\'");
-    const uid = userData.uid;
-    
-    return `
-        ${friendBtnHtml}
-        <button class="btn ${isFollowing ? 'btn-secondary' : 'btn-primary'} 
-                profile-action-btn" 
-                id="follow-btn-${userData.uid}"
-                onclick="Profile.toggleFollow('${userData.uid}', this)">
-            ${isFollowing ? 'Following' : 'Follow'}
-        </button>
-           <button onclick="Chat.openWithUser('${uid}', '${displayName}', '${photoURL}')">
-            <i class="fas fa-comment"></i>
-        </button>
-        <button class="btn btn-secondary profile-action-btn" 
-                onclick="Profile.moreOptions('${userData.uid}')">
-            <i class="fas fa-ellipsis-v"></i>
-        </button>
-    `;
-},
-                    <button class="btn btn-secondary profile-action-btn" 
-                            onclick="Chat.openWithUser('${userData.uid}', '${App.escapeHtml(userData.displayName)}', '${userData.photoURL || ''}')">
-                        <i class="fas fa-comment"></i>
-                    </button>
-                    <button class="btn btn-secondary profile-action-btn" onclick="Profile.moreOptions('${userData.uid}')">
-                        <i class="fas fa-ellipsis-v"></i>
-                    </button>
-                    `}
+                    ${actionButtonsHtml}
                 </div>
                 
-                <!-- Mini Games & Leaderboard (My Profile) -->
-                ${isMyProfile ? `
-                <div class="profile-quick-btns">
-                    <button class="quick-btn" onclick="document.getElementById('games-page').style.display='block'; Games.init()">
-                        🎮 Mini Games
-                    </button>
-                    <button class="quick-btn" onclick="document.getElementById('leaderboard-page').style.display='block'; Leaderboard.load()">
-                        🏆 Leaderboard
-                    </button>
-                    <button class="quick-btn" onclick="document.getElementById('xp-boost-modal').style.display='flex'">
-                        ⚡ XP Boost
-                    </button>
-<button class="quick-btn" 
-         onclick="Friends.openRequestsPage()">
-    👥 Friends
-</button>
-                    ${isAdmin ? `
-                    <button class="quick-btn" onclick="document.getElementById('admin-panel').style.display='block'">
-                        ⚙️ Admin
-                    </button>
-                    ` : ''}
-                </div>
-                ` : ''}
+                ${quickButtonsHtml}
                 
-                <!-- Content Tabs -->
                 <div class="profile-content-tabs">
-                    <button class="profile-tab active" data-tab="posts" onclick="Profile.switchContentTab('posts', '${userData.uid}', this)">
-                        <i class="fas fa-grid-2"></i> Posts
-                    </button>
-                    ${isMyProfile ? `
-                    <button class="profile-tab" data-tab="liked" onclick="Profile.switchContentTab('liked', '${userData.uid}', this)">
-                        <i class="fas fa-heart"></i> Liked
-                    </button>
-                    ` : ''}
-                    ${(isVerified || isAdmin) ? `
-                    <button class="profile-tab" data-tab="shop" onclick="Profile.switchContentTab('shop', '${userData.uid}', this)">
-                        <i class="fas fa-shopping-bag"></i> Shop
-                    </button>
-                    ` : ''}
+                    ${tabsHtml}
                 </div>
                 
-                <!-- Content Grid -->
-                ${canViewContent ? `
-                <div class="profile-content-grid" id="profile-grid-${userData.uid}">
-                    <div style="text-align:center; padding:40px; color:var(--text-tertiary);">
-                        <div class="spinner"></div>
-                    </div>
-                </div>
-                ` : `
-                <div class="private-account-notice">
-                    <i class="fas fa-lock"></i>
-                    <h3>This account is private</h3>
-                    <p>Follow to see their posts</p>
-                </div>
-                `}
+                ${contentGridHtml}
             </div>
         `;
         
         container.innerHTML = html;
-        
-        // Apply profile-specific styles
         this.applyProfileStyles(container);
         
-        // Load posts if can view
         if (canViewContent) {
-            await this.loadUserPosts(userData.uid, 'posts');
+            await this.loadUserPosts(uid, 'posts');
         }
     },
     
