@@ -944,12 +944,20 @@
         <div class="spinner-large"></div>
     </div>
 
-<!-- CORRECT ORDER - scripts must load in this order -->
+<!-- 1. Firebase FIRST -->
 <script src="js/firebase-config.js"></script>
-    <script src="js/image-handler.js"></script>
+
+<!-- 2. Core utilities -->
 <script src="js/sound.js"></script>
+<script src="js/image-handler.js"></script>
+
+<!-- 3. Main app -->
 <script src="js/app.js"></script>
+
+<!-- 4. Auth -->
 <script src="js/auth.js"></script>
+
+<!-- 5. Features -->
 <script src="js/feed.js"></script>
 <script src="js/profile.js"></script>
 <script src="js/chat.js"></script>
@@ -958,7 +966,7 @@
 <script src="js/shop.js"></script>
 <script src="js/coins.js"></script>
 <script src="js/games.js"></script>
-<script src="js/notifications.js"></script>  <!-- Must load before app uses it -->
+<script src="js/notifications.js"></script>
 <script src="js/friends.js"></script>
 <script src="js/ads.js"></script>
 <script src="js/admin.js"></script>
@@ -966,103 +974,72 @@
 <script src="js/settings.js"></script>
 <script src="js/search.js"></script>
 <script src="js/performance.js"></script>
-    
-<!-- Initialize on DOM ready -->
+
+<!-- 6. LAST: App initialization -->
 <script>
+    // Wait for DOM ready AND all scripts loaded
     document.addEventListener('DOMContentLoaded', () => {
-        Sound.init();
+        console.log('🚀 Initializing Vidr...');
+        
+        // Initialize dark mode from storage
+        if (localStorage.getItem('vidr_dark_mode') === 'true') {
+            document.documentElement.dataset.theme = 'dark';
+        }
+        
+        // Store referral code if present
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('ref')) {
+            localStorage.setItem('vidr_pending_ref', urlParams.get('ref'));
+        }
+        if (urlParams.get('aff')) {
+            localStorage.setItem('vidr_affiliate', urlParams.get('aff'));
+        }
+        
+        // Verify all modules loaded before starting
+        const requiredModules = ['App', 'Auth', 'Feed'];
+        const missing = requiredModules.filter(m => typeof window[m] === 'undefined');
+        
+        if (missing.length > 0) {
+            console.error('❌ Missing modules:', missing);
+            document.body.innerHTML = `
+                <div style="padding:40px;text-align:center;font-family:sans-serif;">
+                    <h1 style="color:#c084fc;">⚠️ Loading Error</h1>
+                    <p>Missing: ${missing.join(', ')}</p>
+                    <button onclick="location.reload()" 
+                            style="padding:12px 24px;background:#c084fc;color:white;
+                                   border:none;border-radius:8px;cursor:pointer;">
+                        Reload Page
+                    </button>
+                </div>
+            `;
+            return;
+        }
+        
+        // Init Search module if available
+        if (typeof Search !== 'undefined') {
+            Search.init();
+        }
+        
+        // Init Sound if available
+        if (typeof Sound !== 'undefined') {
+            Sound.init();
+        }
+        
+        // Init Image Handler
+        if (typeof ImageHandler !== 'undefined') {
+            ImageHandler.init();
+        }
     });
+    
+    // Service Worker Registration
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('✅ SW registered'))
+                .catch(err => console.warn('SW failed:', err));
+        });
+    }
 </script>
 
-    <!-- Adsterra Social Bar -->
-    <script type="text/javascript">
-        atOptions = {
-            'key': 'YOUR_ADSTERRA_KEY',
-            'format': 'iframe',
-            'height': 50,
-            'width': 320,
-            'params': {}
-        };
-    </script>
-    <script type="text/javascript" 
-            src="//www.highperformanceformat.com/YOUR_ADSTERRA_KEY/invoke.js">
-    </script>
-    
-    <!-- PropellerAds -->
-    <script>
-        (function(s,u,z,p){
-            s.src=u, s.setAttribute('data-zone',z), p.appendChild(s);
-        })(document.createElement('script'),
-           'https://cdn.bmcdn5.com/js/b.min.js',
-           'YOUR_PROPELLERADS_ZONE_ID',
-           document.head||document.documentElement);
-    </script>
-    
-    <!-- Monetag -->
-    <script src="https://cdn.monetag.com/YOUR_MONETAG_ID.js" async></script>
-    
-    <!-- Initialize App -->
-    <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            // Init dark mode first (prevent flash)
-            const darkMode = localStorage.getItem('vidr_dark_mode');
-            if (darkMode === 'true') {
-                document.documentElement.dataset.theme = 'dark';
-            }
-            
-            // Check referral on load
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('ref')) {
-                localStorage.setItem('vidr_pending_ref', urlParams.get('ref'));
-            }
-            
-            // Store affiliate code
-            if (urlParams.get('aff')) {
-                localStorage.setItem('vidr_affiliate', urlParams.get('aff'));
-            }
-            
-            // Init search
-            Search.init();
-            
-            // Override App search to use enhanced Search module
-            App.searchUsers = (query) => Search.search(query);
-            App.openSearch = () => {
-                document.getElementById('search-overlay').style.display = 'block';
-                Search.showRecent();
-                setTimeout(() => document.getElementById('search-input')?.focus(), 300);
-            };
-        });
-        
-        // After user logs in
-        const _origLoadUser = App.loadUserData.bind(App);
-        App.loadUserData = async function(uid) {
-            await _origLoadUser(uid);
-            
-            // Check referral after login
-            const pendingRef = localStorage.getItem('vidr_pending_ref');
-            if (pendingRef) {
-                localStorage.removeItem('vidr_pending_ref');
-                await Settings.checkReferral();
-            }
-            
-            // Init dark mode from user settings
-            Settings.initDarkMode();
-            
-            // Admin init
-            if (App.isAdmin) {
-                await Admin.init();
-                await Stories.cleanupExpiredStories();
-            }
-        };
-        
-        // Register SW
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js')
-                .then(reg => {
-                    console.log('✅ SW registered:', reg.scope);
-                })
-                .catch(err => console.warn('SW failed:', err));
-        }
-    </script>
 </body>
 </html>
