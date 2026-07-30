@@ -899,28 +899,27 @@
         <div class="spinner-large"></div>
     </div>
 
+<!-- CORRECT ORDER - scripts must load in this order -->
+<script src="js/firebase-config.js"></script>
 <script src="js/sound.js"></script>
-
-    <!-- All JavaScript Modules -->
-    <script src="js/firebase-config.js"></script>
-    <script src="js/app.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/feed.js"></script>
-    <script src="js/profile.js"></script>
-    <script src="js/chat.js"></script>
-    <script src="js/create.js"></script>
-    <script src="js/live.js"></script>
-    <script src="js/shop.js"></script>
-    <script src="js/coins.js"></script>
-    <script src="js/games.js"></script>
-    <script src="js/notifications.js"></script>
-    <script src="js/ads.js"></script>
-    <script src="js/admin.js"></script>
-    <script src="js/stories.js"></script>
-    <script src="js/settings.js"></script>
-    <script src="js/search.js"></script>
-    <script src="js/performance.js"></script>
+<script src="js/app.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/feed.js"></script>
+<script src="js/profile.js"></script>
+<script src="js/chat.js"></script>
+<script src="js/create.js"></script>
+<script src="js/live.js"></script>
+<script src="js/shop.js"></script>
+<script src="js/coins.js"></script>
+<script src="js/games.js"></script>
+<script src="js/notifications.js"></script>  <!-- Must load before app uses it -->
 <script src="js/friends.js"></script>
+<script src="js/ads.js"></script>
+<script src="js/admin.js"></script>
+<script src="js/stories.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/search.js"></script>
+<script src="js/performance.js"></script>
     
 <!-- Initialize on DOM ready -->
 <script>
