@@ -3,46 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#f8b4d9">
-    <meta name="description" content="Vidr - Share, Create, Earn. The next-gen social platform.">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#c084fc">
+    <meta name="description" content="Vidr - Share, Create, Earn. Join millions creating and sharing amazing content.">
+    <meta name="keywords" content="social media, videos, live streaming, earn money, vidr">
+    <meta name="author" content="Vidr">
+    
+    <!-- Mobile Web App -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Vidr">
+    <meta name="application-name" content="Vidr">
+    <meta name="msapplication-TileColor" content="#c084fc">
+    <meta name="msapplication-TileImage" content="/assets/logo/icon-192.png">
     
     <title>Vidr - Share, Create, Earn</title>
     
-    <!-- Preload Critical Resources -->
+    <!-- ==================
+         FAVICONS (Using your files)
+         ================== -->
+    
+    <!-- Main favicon -->
+    <link rel="icon" type="image/png" href="/assets/logo/favicon.png">
+    <link rel="shortcut icon" type="image/png" href="/assets/logo/favicon.png">
+    
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="/assets/logo/icon-192.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="/assets/logo/icon-192.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="/assets/logo/icon-512.png">
+    
+    <!-- Android Chrome Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/assets/logo/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/assets/logo/icon-512.png">
+    
+    <!-- ==================
+         OPEN GRAPH (Social Sharing)
+         ================== -->
+    
+    <meta property="og:title" content="Vidr - Share, Create, Earn">
+    <meta property="og:description" content="Join millions creating and sharing amazing content on Vidr">
+    <meta property="og:image" content="https://vidr.click/assets/logo/icon-512.png">
+    <meta property="og:image:width" content="512">
+    <meta property="og:image:height" content="512">
+    <meta property="og:url" content="https://vidr.click">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Vidr">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Vidr - Share, Create, Earn">
+    <meta name="twitter:description" content="Join millions creating and sharing amazing content">
+    <meta name="twitter:image" content="https://vidr.click/assets/logo/icon-512.png">
+    
+    <!-- ==================
+         PWA MANIFEST
+         ================== -->
+    
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- ==================
+         FONTS
+         ================== -->
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="assets/logo/favicon.png">
-    <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png">
+    <!-- ==================
+         STYLESHEETS
+         ================== -->
     
-    <!-- Manifest for PWA -->
-    <link rel="manifest" href="manifest.json">
-    
-    <!-- Stylesheets -->
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/animations.css">
     <link rel="stylesheet" href="css/responsive.css">
     
-    <!-- Firebase SDK -->
+    <!-- ==================
+         FIREBASE SDK
+         ================== -->
+    
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js"></script>
-    
-    <!-- Adsterra -->
-    <script async src="//pl*.youradsterralink.com/placeholder.js"></script>
-    
-    <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-YOURPUBID" crossorigin="anonymous"></script>
 </head>
 <body>
     <!-- Splash Screen -->
