@@ -506,20 +506,39 @@ const Chat = {
             const user = doc.data();
             if (doc.id === App.currentUser.uid) return;
             if (user.role === 'admin' && !App.isAdmin) return;
-            
-            html += `
-                <div class="search-result-item" onclick="this.closest('.modal-overlay').remove(); Chat.openWithUser('${doc.id}', '${App.escapeHtml(user.displayName)}', '${user.photoURL || ''}')">
-                    <img src="${user.photoURL || 'assets/icons/default-avatar.png'}" class="search-result-avatar" loading="lazy">
-                    <div class="search-result-info">
-                        <div class="search-result-name">${App.escapeHtml(user.displayName)}</div>
-                        <div class="search-result-username">@${App.escapeHtml(user.username)}</div>
-                    </div>
-                </div>
-            `;
-        });
+            const uid = doc.id;
+        const displayName = (user.displayName || '').replace(/'/g, "&#39;");
+        const username = (user.username || '').replace(/'/g, "&#39;");
+        const photoURL = user.photoURL || '';
         
-        if (el) el.innerHTML = html || '<p style="text-align:center;color:var(--text-tertiary);padding:20px;">No users found</p>';
-    },
+        html += `
+            <div class="search-result-item" 
+                 onclick="Chat.startChatWithUser('${uid}')">
+                <img src="${photoURL || 'assets/icons/default-avatar.png'}" 
+                     class="search-result-avatar" loading="lazy">
+                <div class="search-result-info">
+                    <div class="search-result-name">${displayName}</div>
+                    <div class="search-result-username">@${username}</div>
+                </div>
+            </div>
+        `;
+    });
+    
+    if (el) el.innerHTML = html || '<p style="text-align:center;color:var(--text-tertiary);padding:20px;">No users found</p>';
+},
+
+// NEW helper method - safer than inline
+async startChatWithUser(uid) {
+    // Close any open modal
+    document.querySelector('.modal-overlay:last-child')?.remove();
+    
+    // Get user data
+    const userDoc = await db.collection(Collections.USERS).doc(uid).get();
+    if (!userDoc.exists) return;
+    
+    const user = userDoc.data();
+    this.openWithUser(uid, user.displayName || '', user.photoURL || '');
+}
     
     /* ==================
        ROOM OPTIONS
