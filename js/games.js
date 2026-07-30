@@ -1,4 +1,29 @@
 /* ============================================
+   FIX: js/games.js
+   Add this check at the TOP of the file
+   ============================================ */
+
+// Prevent double declaration
+if (typeof Games === 'undefined') {
+
+const Games = {
+    
+    _lastGame: '',
+    
+    init() {
+        console.log('🎮 Games module loaded');
+    },
+    
+
+// Make available globally
+if (typeof window !== 'undefined') {
+    window.Games = Games;
+}
+
+} // End of typeof check
+
+
+/* ============================================
    MINI GAMES MODULE
    File: js/games.js
    
